@@ -11,7 +11,6 @@
 ### 구현 결과 이미지
 <img src="./RayTracing_Cubemap/Result.jpg" width=100%>
 
-<br/>
 학습 내용
 - Ray Tracing<br/>
 - 3차원 구<br/>
