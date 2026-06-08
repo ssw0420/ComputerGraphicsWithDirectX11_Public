@@ -400,4 +400,4 @@ FodyWeavers.xsd
 doctest-output/
 
 # Assets
-Cubemap_Images/
+*/Cubemap_Images/
