@@ -14,7 +14,6 @@ F3D 모델을 활용하였습니다.<br/>
 레이트레이싱 큐브 매핑
 <img src="./RayTracing_Cubemap/Result.jpg" width=100%>
 
-### 구현 결과 이미지
 래스터라이제이션 기반 큐브 매핑
 <img src="./Cubemap/Result1.png" width=100%>
 <img src="./Cubemap/Result2.png" width=100%>
