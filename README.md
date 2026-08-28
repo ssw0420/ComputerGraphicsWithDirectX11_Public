@@ -6,6 +6,8 @@
 
 홍정모 연구소의 컴퓨터 그래픽스 강의를 기반으로 학습 후 제작하였습니다.<br/>
 
+F3D 모델을 활용하였습니다.<br/>
+
 ## 결과 이미지
 
 ### 구현 결과 이미지
@@ -19,7 +21,6 @@
 <img src="./Cubemap/Model.png" width=100%>
 <img src="./Cubemap/Model2.png" width=100%>
 <img src="./Cubemap/Wireframe.png" width=100%>
-<img src="./Cubemap/Wireframe2.png" width=100%>
 <img src="./Cubemap/Normal.png" width=100%>
 
 
