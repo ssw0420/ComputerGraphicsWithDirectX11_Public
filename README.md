@@ -19,12 +19,10 @@ F3D 모델을 활용하였습니다.<br/>
 <img src="./Cubemap/IBL_Sphere.png" width=100%>
 <img src="./Cubemap/IBL_Model.png" width=100%>
 
-<br/>
 - 큐브 매핑, 3D 모델 사용
 <img src="./Cubemap/Result1.png" width=100%>
 <img src="./Cubemap/Result2.png" width=100%>
 
-<br/>
 - 활용 3D 모델 구조
 <img src="./Cubemap/Model.png" width=100%>
 <img src="./Cubemap/Model2.png" width=100%>
