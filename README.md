@@ -10,14 +10,16 @@
 #### 레이트레이싱 기반 렌더링
 <img src="./RayTracing_Cubemap/Result.jpg" width=100%>
 
+
 #### 래스터라이제이션 기반 렌더링
 - 이미지 기반 라이팅 적용
 <img src="./Cubemap/IBL_Sphere.png" width=100%>
 <img src="./Cubemap/IBL_Model.png" width=100%>
 
+
 - 큐브 매핑, Point Light, 3D 모델 사용
 <img src="./Cubemap/Result1.png" width=100%>
-<img src="./Cubemap/Result2.png" width=100%>
+
 
 - 활용 3D 모델 구조
 <img src="./Cubemap/Model.png" width=100%>
