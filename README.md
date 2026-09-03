@@ -52,3 +52,5 @@
 - Ray Tracing in One Weekend
 - F3D
 - songho.ca
+- cmft studio
+- texsassemble
