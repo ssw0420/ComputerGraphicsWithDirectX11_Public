@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="PostProcessing/PostProcessing.vcxproj" Id="3d0bc793-73a1-4733-8e7d-ef1bb40e8be4" />
+</Solution>
