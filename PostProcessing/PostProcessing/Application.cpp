@@ -31,8 +31,6 @@ namespace ssw
 		DestroyWindow(_mainWindow);
 	}
 
-
-
 	bool Application::Initialize()
 	{
 		if (!InitMainWindow()) return false;
@@ -141,6 +139,8 @@ namespace ssw
 
 				ImGui::End();
 				ImGui::Render();
+
+				Update(ImGui::GetIO().DeltaTime);
 
 				Render();
 
@@ -251,18 +251,18 @@ namespace ssw
 
 		if (numQualityLevels <= 0)
 		{
-			cout << "MSAA not supported." << endl;
+			cout << "MSAA unsupported." << endl;
 		}
 
 		if (FAILED(device.As(&_device)))
 		{
-			cout << "device.AS() failed." << endl;
+			cout << "device.AS() FAILED" << endl;
 			return false;
 		}
 
 		if (FAILED(context.As(&_context)))
 		{
-			cout << "context.As() failed." << endl;
+			cout << "context.As() FAILED" << endl;
 			return false;
 		}
 
@@ -299,7 +299,7 @@ namespace ssw
 			_swapChain.GetAddressOf(), _device.GetAddressOf(), &featureLevel,
 			_context.GetAddressOf())))
 		{
-			cout << "D3D11CreateDeviceAndSwapChain() failed." << endl;
+			cout << "D3D11CreateDeviceAndSwapChain() FAILED" << endl;
 			return false;
 		}
 
@@ -313,7 +313,7 @@ namespace ssw
 		}
 		else
 		{
-			std::cout << "CreateRenderTargetView() failed." << std::endl;
+			std::cout << "CreateRenderTargetView() FAILED" << std::endl;
 			return false;
 		}
 		
@@ -363,10 +363,10 @@ namespace ssw
 		rastDesc.DepthClipEnable = true;
 
 		rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-		_device->CreateRasterizerState(&rastDesc, _solidRasterizerSate.GetAddressOf());
+		_device->CreateRasterizerState(&rastDesc, _solidRasterizerState.GetAddressOf());
 	
 		rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
-		_device->CreateRasterizerState(&rastDesc, _wireRasterizerSate.GetAddressOf());
+		_device->CreateRasterizerState(&rastDesc, _wireRasterizerState.GetAddressOf());
 	}
 
 	void Application::CreateDepthBuffer()
@@ -397,13 +397,13 @@ namespace ssw
 		if (FAILED(_device->CreateTexture2D(&depthStencilBufferDesc, 0,
 			depthStencilBuffer.GetAddressOf())))
 		{
-			std::cout << "CreateTexture2D() failed." << std::endl;
+			std::cout << "CreateTexture2D() FAILED" << std::endl;
 		}
 
 		if (FAILED(_device->CreateDepthStencilView(
 			depthStencilBuffer.Get(), 0, _depthStencilView.GetAddressOf())))
 		{
-			std::cout << "CreateDepthStencilView() failed." << std::endl;
+			std::cout << "CreateDepthStencilView() FAILED" << std::endl;
 		}
 	}
 
@@ -420,5 +420,10 @@ namespace ssw
 		if (!ImGui_ImplWin32_Init(_mainWindow)) return false;
 
 		return true;
+	}
+
+	float Application::GetAspectRatio() const
+	{
+		return float(_screenWidth - _guiWidth) / _screenHeight;
 	}
 }

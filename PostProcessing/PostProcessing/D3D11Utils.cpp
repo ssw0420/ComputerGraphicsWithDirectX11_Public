@@ -5,7 +5,7 @@
 #include <iostream>
 #include <directxtk/DDSTextureLoader.h>
 
-#define STB_IMAGE_IMPLEMENTATON
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 namespace ssw

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-#include "D3D11Utils.h";
+#include "D3D11Utils.h"
 
 namespace ssw
 {
@@ -27,6 +27,10 @@ namespace ssw
 		virtual void Render() = 0;
 
 		int Run();
+
+		virtual void Update(float dt) = 0;
+		float GetAspectRatio() const;
+
 
 	protected:
 		void SetViewport();
@@ -60,7 +64,7 @@ namespace ssw
 		ComPtr<ID3D11DepthStencilState> _depthStencilState;
 
 		// Rasterizer
-		ComPtr<ID3D11RasterizerState> _solidRasterizerSate;
-		ComPtr<ID3D11RasterizerState> _wireRasterizerSate;
+		ComPtr<ID3D11RasterizerState> _solidRasterizerState;
+		ComPtr<ID3D11RasterizerState> _wireRasterizerState;
 	};
 }
