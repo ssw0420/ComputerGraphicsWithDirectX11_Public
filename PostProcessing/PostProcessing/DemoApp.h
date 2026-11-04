@@ -5,8 +5,7 @@
 #include <memory>
 
 #include "Application.h"
-#include "Mesh.h"
-#include "BasicConstantData.h"
+#include "BasicMeshGroup.h"
 
 namespace ssw
 {
@@ -22,14 +21,14 @@ namespace ssw
 		virtual void Update(float dt) override;
 
 	private:
-		Mesh _box;
+		//Mesh _box;
+		//Mesh _mesh;
 
-		ComPtr<ID3D11VertexShader> _vertexShader;
-		ComPtr<ID3D11PixelShader> _pixelShader;
-		ComPtr<ID3D11InputLayout> _inputLayout;
+		//ComPtr<ID3D11VertexShader> _vertexShader;
+		//ComPtr<ID3D11PixelShader> _pixelShader;
+		//ComPtr<ID3D11InputLayout> _inputLayout;
 
-		BasicVertexConstantData _basicVertexConstantData;
-		ComPtr<ID3D11Buffer> _vertexConstantBuffer;
+		BasicMeshGroup _meshGroupSphere;
 
 		// 물체 원근, 위치, 회전, 크기
 		bool _usePerspectiveProjection = true;

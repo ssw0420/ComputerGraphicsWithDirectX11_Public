@@ -9,8 +9,8 @@ namespace ssw
 
 	struct Mesh
 	{
-		ComPtr<ID3D11Buffer> vertexBuffer;
-		ComPtr<ID3D11Buffer> indexBuffer;
+		ComPtr<ID3D11Buffer> _vertexBuffer;
+		ComPtr<ID3D11Buffer> _indexBuffer;
 		UINT _indexCount = 0;
 	};
 }

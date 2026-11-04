@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BasicMeshGroup.cpp" />
     <ClCompile Include="D3D11Utils.cpp" />
     <ClCompile Include="DemoApp.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="BasicConstantData.h" />
+    <ClInclude Include="BasicMeshGroup.h" />
     <ClInclude Include="D3D11Utils.h" />
     <ClInclude Include="DemoApp.h" />
     <ClInclude Include="GeometryGenerator.h" />

@@ -117,4 +117,102 @@ namespace ssw
 
 		return meshData;
 	}
+
+	MeshData GeometryGenerator::MakeCylinder(const float bottomRadius,
+		const float topRadius, float height, int numSlices)
+	{
+		const float dTheta = -XM_2PI / float(numSlices);
+
+		MeshData meshData;
+		vector<Vertex>& vertices = meshData.vertices;
+
+		// 하단 부분
+		for (int i = 0; i <= numSlices; ++i)
+		{
+			Vertex v;
+			v.position =
+				Vector3::Transform(Vector3(bottomRadius, -0.5f * height, 0.0f),
+					Matrix::CreateRotationY(dTheta * float(i)));
+
+			v.normal = v.position - Vector3(0.0f, -0.5f * height, 0.0f);
+			v.normal.Normalize();
+
+			vertices.push_back(v);
+		}
+
+		// 상단 부분
+		for (int i = 0; i <= numSlices; ++i)
+		{
+			Vertex v;
+			v.position =
+				Vector3::Transform(Vector3(topRadius, 0.5f * height, 0.0f),
+					Matrix::CreateRotationY(dTheta * float(i)));
+			v.normal = v.position - Vector3(0.0f, 0.5f * height, 0.0f);
+			v.normal.Normalize();
+
+			vertices.push_back(v);
+		}
+
+		vector<uint32_t>& indices = meshData.indices;
+
+		for (int i = 0; i < numSlices; ++i)
+		{
+			indices.push_back(i);
+			indices.push_back(i + numSlices + 1);
+			indices.push_back(i + 1 + numSlices + 1);
+
+			indices.push_back(i);
+			indices.push_back(i + 1 + numSlices + 1);
+			indices.push_back(i + 1);
+		}
+
+		return meshData;
+	}
+
+	MeshData GeometryGenerator::MakeSphere(const float radius, const int numSlices, const int numStacks)
+	{
+		const float dTheta = -XM_2PI / float(numSlices);
+		const float dPhi = -XM_PI / float(numStacks); // 세로 방향 구현 목적
+
+		MeshData meshData;
+
+		vector<Vertex>& vertices = meshData.vertices;
+
+		for (int j = 0; j <= numStacks; ++j)
+		{
+			Vector3 stackStartPoint = Vector3::Transform(Vector3(0.0f, -radius, 0.0f),
+				Matrix::CreateRotationZ(dPhi * j));
+
+			for (int i = 0; i <= numSlices; ++i)
+			{
+				Vertex v;
+				v.position = Vector3::Transform(stackStartPoint, Matrix::CreateRotationY(dTheta * float(i)));
+				
+				v.normal = v.position;
+				v.normal.Normalize();
+
+				vertices.push_back(v);
+			}
+		}
+
+		vector<uint32_t>& indices = meshData.indices;
+
+		for (int j = 0; j < numStacks; ++j)
+		{
+			const int offset = (numSlices + 1) * j;
+
+			for (int i = 0; i < numSlices; ++i)
+			{
+				indices.push_back(offset + i);
+				indices.push_back(offset + i + numSlices + 1);
+				indices.push_back(offset + i + 1 + numSlices + 1);
+
+				indices.push_back(offset + i);
+				indices.push_back(offset + i + 1 + numSlices + 1);
+				indices.push_back(offset + i + 1);
+			}
+		}
+
+		return meshData;
+	}
 }
