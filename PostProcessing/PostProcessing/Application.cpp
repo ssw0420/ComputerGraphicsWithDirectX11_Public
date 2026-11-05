@@ -135,6 +135,8 @@ namespace ssw
 					1000.0f / ImGui::GetIO().Framerate,
 					ImGui::GetIO().Framerate);
 
+				UpdateGUI();
+
 				_guiWidth = 0;
 
 				ImGui::End();

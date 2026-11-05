@@ -12,6 +12,9 @@ namespace ssw
 		MeshData sphere = GeometryGenerator::MakeSphere(0.3f, 100, 100);
 		_meshGroupSphere.Initialize(_device, { sphere });
 
+		MeshData box = GeometryGenerator::MakeBox(0.3f);
+		_meshGroupBox.Initialize(_device, { box });
+
 		return true;
 
 		//MeshData box = GeometryGenerator::MakeBox(0.3f);
@@ -175,7 +178,8 @@ namespace ssw
 
 		_context->RSSetState(_solidRasterizerState.Get());
 
-		_meshGroupSphere.Render(_context);
+		if (_bSphereVisible) _meshGroupSphere.Render(_context);
+		if (_bBoxVisible) _meshGroupBox.Render(_context);
 
 		//UINT stride = sizeof(Vertex);
 		//UINT offset = 0;
@@ -197,23 +201,96 @@ namespace ssw
 	{
 		using namespace DirectX;
 
-		auto modelRow = Matrix::CreateScale(_modelScaling);
+		//auto modelRow = Matrix::CreateScale(_modelScaling);
 
 		auto viewRow = Matrix::CreateTranslation(0.0f, 0.0f, 2.0f);
 
 		const float aspect = Application::GetAspectRatio();
 		auto projRow = static_cast<Matrix>(XMMatrixPerspectiveFovLH(XMConvertToRadians(_projFovAngleY), aspect, _nearZ, _farZ));
 	
-		_meshGroupSphere._basicVertexConstantData.model = modelRow.Transpose();
+		// 두 물체를 동시에 표현하기 위해 위치도 조정함
+		// 행 벡터이므로 왼쪽 -> 오른쪽 순서
+		auto sphereModelRow = Matrix::CreateScale(_sphereScaling) *
+			Matrix::CreateRotationY(_sphereRotation.y) *
+			Matrix::CreateRotationX(_sphereRotation.x) *
+			Matrix::CreateRotationZ(_sphereRotation.z) *
+			Matrix::CreateTranslation(_sphereTranslation);
+		_meshGroupSphere._basicVertexConstantData.model = sphereModelRow.Transpose();
 		_meshGroupSphere._basicVertexConstantData.view = viewRow.Transpose();
 		_meshGroupSphere._basicVertexConstantData.projection = projRow.Transpose();
-
 		_meshGroupSphere.UpdateConstantBuffers(_device, _context);
+
+		auto boxModelRow = Matrix::CreateScale(_boxScaling) *
+			Matrix::CreateRotationY(_boxRotation.y) *
+			Matrix::CreateRotationX(_boxRotation.x) *
+			Matrix::CreateRotationZ(_boxRotation.z) *
+			Matrix::CreateTranslation(_boxTranslation);
+		_meshGroupBox._basicVertexConstantData.model = boxModelRow.Transpose();
+		_meshGroupBox._basicVertexConstantData.view = viewRow.Transpose();
+		_meshGroupBox._basicVertexConstantData.projection = projRow.Transpose();
+		_meshGroupBox.UpdateConstantBuffers(_device, _context);
 
 		//D3D11_MAPPED_SUBRESOURCE ms;
 		//_context->Map(_vertexConstantBuffer.Get(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 		//memcpy(ms.pData, &_basicVertexConstantData, sizeof(_basicVertexConstantData));
 		//
 		//_context->Unmap(_vertexConstantBuffer.Get(), NULL);
+	}
+
+	void DemoApp::UpdateGUI()
+	{
+		if (ImGui::Checkbox("Sphere", &_bSphereSelected))
+		{
+			if (_bSphereSelected)
+			{
+				_modelRotation = _sphereRotation;
+				_modelTranslation = _sphereTranslation;
+				_modelScaling = _sphereScaling;
+			}
+			else if (_bBoxSelected)
+			{
+				_modelRotation = _boxRotation;
+				_modelTranslation = _boxTranslation;
+				_modelScaling = _boxScaling;
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Box", &_bBoxSelected))
+		{
+			if (_bSphereSelected)
+			{
+				_modelRotation = _sphereRotation;
+				_modelTranslation = _sphereTranslation;
+				_modelScaling = _sphereScaling;
+			}
+			else if (_bBoxSelected)
+			{
+				_modelRotation = _boxRotation;
+				_modelTranslation = _boxTranslation;
+				_modelScaling = _boxScaling;
+			}
+		}
+
+		ImGui::Checkbox("Show Sphere", &_bSphereVisible);
+		ImGui::SameLine();
+		ImGui::Checkbox("Show Box", &_bBoxVisible);
+
+		if (ImGui::SliderFloat3("Model Translation", &_modelTranslation.x, -1.0f, 1.0f))
+		{
+			if (_bSphereSelected) _sphereTranslation = _modelTranslation;
+			if (_bBoxSelected) _boxTranslation = _modelTranslation;
+		}
+
+		if (ImGui::SliderFloat3("Model Rotation", &_modelRotation.x, -3.14f, 3.14f))
+		{
+			if (_bSphereSelected) _sphereRotation = _modelRotation;
+			if (_bBoxSelected) _boxRotation = _modelRotation;
+		}
+
+		if (ImGui::SliderFloat3("Model Scaling", &_modelScaling.x, 0.1f, 3.0f));
+		{
+			if (_bSphereSelected) _sphereScaling = _modelScaling;
+			if (_bBoxSelected) _boxScaling = _modelScaling;
+		}
 	}
 }

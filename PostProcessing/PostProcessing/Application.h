@@ -31,6 +31,7 @@ namespace ssw
 		virtual void Update(float dt) = 0;
 		float GetAspectRatio() const;
 
+		virtual void UpdateGUI() = 0;
 
 	protected:
 		void SetViewport();
