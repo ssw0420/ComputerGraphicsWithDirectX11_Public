@@ -103,4 +103,53 @@ namespace ssw
 		device->CreateBuffer(&ibDesc, &ibData, indexBuffer.GetAddressOf());
 	}
 
+	void D3D11Utils::CreateTexture(ComPtr<ID3D11Device>& device, const std::string filename, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& textureResourceView)
+	{
+		int width = 0;
+		int height = 0;
+		int channels = 0; // 이미지의 픽셀 하나에 들어있는 색 개수 - R, G, B
+		unsigned char* loadedPixels = stbi_load(filename.c_str(), &width, &height, &channels, 0);
+
+		if (!loadedPixels)
+		{
+			cout << "stbi_load() FAILED: " << filename << endl;
+			cout << stbi_failure_reason() << endl;
+			return;
+		}
+
+		// RGB 3바이트 -> RGBA 4바이트 (DXGI에 24비트 RGB 형식이 없음)
+		vector<uint8_t> rgbaPixels;
+		rgbaPixels.resize(width * height * 4);
+		for (size_t pixelIndex = 0; pixelIndex < width * height; ++pixelIndex)
+		{
+			size_t srcStart = pixelIndex * channels;
+			size_t destStart = pixelIndex * 4; // RGBA
+			
+			for (size_t channelIndex = 0; channelIndex < 3; ++channelIndex)
+			{
+				rgbaPixels[destStart + channelIndex] = loadedPixels[srcStart + channelIndex];
+			}
+			// A 부분에 매 반복마다 255를 넣음
+			rgbaPixels[destStart + 3] = 255;
+		}
+
+		stbi_image_free(loadedPixels);
+
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.Width = width;
+		textureDesc.Height = height;
+		textureDesc.MipLevels = textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		D3D11_SUBRESOURCE_DATA initData = {};
+		initData.pSysMem = rgbaPixels.data();
+		initData.SysMemPitch = textureDesc.Width * sizeof(uint8_t) * 4;
+
+		device->CreateTexture2D(&textureDesc, &initData, texture.GetAddressOf());
+
+		device->CreateShaderResourceView(texture.Get(), nullptr, textureResourceView.GetAddressOf());
+	}
 }

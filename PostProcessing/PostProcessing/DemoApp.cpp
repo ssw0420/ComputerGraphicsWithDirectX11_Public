@@ -10,9 +10,11 @@ namespace ssw
 	{
 		if (!Application::Initialize()) return false;
 		MeshData sphere = GeometryGenerator::MakeSphere(0.3f, 100, 100);
+		sphere.textureFileName = "earth.jpg";
 		_meshGroupSphere.Initialize(_device, { sphere });
 
 		MeshData box = GeometryGenerator::MakeBox(0.3f);
+		box.textureFileName = "wall.jpg";
 		_meshGroupBox.Initialize(_device, { box });
 
 		return true;
@@ -261,6 +263,7 @@ namespace ssw
 				_modelScaling = _sphereScaling;
 				_bDrawNormals = _meshGroupSphere._bDrawNormals;
 				_normalScale = _meshGroupSphere._normalVertexConstantData.scale;
+				_bUseTexture = _meshGroupSphere._basicPixelConstantData.useTexture;
 			}
 			else if (_bBoxSelected)
 			{
@@ -269,6 +272,7 @@ namespace ssw
 				_modelScaling = _boxScaling;
 				_bDrawNormals = _meshGroupBox._bDrawNormals;
 				_normalScale = _meshGroupBox._normalVertexConstantData.scale;
+				_bUseTexture = _meshGroupBox._basicPixelConstantData.useTexture;
 			}
 		}
 		ImGui::SameLine();
@@ -281,6 +285,7 @@ namespace ssw
 				_modelScaling = _sphereScaling;
 				_bDrawNormals = _meshGroupSphere._bDrawNormals;
 				_normalScale = _meshGroupSphere._normalVertexConstantData.scale;
+				_bUseTexture = _meshGroupSphere._basicPixelConstantData.useTexture;
 			}
 			else if (_bBoxSelected)
 			{
@@ -289,6 +294,7 @@ namespace ssw
 				_modelScaling = _boxScaling;
 				_bDrawNormals = _meshGroupBox._bDrawNormals;
 				_normalScale = _meshGroupBox._normalVertexConstantData.scale;
+				_bUseTexture = _meshGroupBox._basicPixelConstantData.useTexture;
 			}
 		}
 
@@ -317,6 +323,12 @@ namespace ssw
 		ImGui::SliderFloat2("_viewRot", &_viewRot.x, -3.14f, 3.14f);
 
 		ImGui::Checkbox("Wireframe", &_bDrawAsWire);
+
+		if (ImGui::Checkbox("Use Texture", &_bUseTexture))
+		{
+			if (_bSphereSelected) _meshGroupSphere._basicPixelConstantData.useTexture = _bUseTexture;
+			if (_bBoxSelected) _meshGroupBox._basicPixelConstantData.useTexture = _bUseTexture;
+		}
 
 		if (ImGui::Checkbox("Draw Normals", &_bDrawNormals))
 		{

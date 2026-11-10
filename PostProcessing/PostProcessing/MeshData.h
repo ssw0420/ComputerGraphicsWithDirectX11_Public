@@ -2,6 +2,7 @@
 
 #include <directxtk/SimpleMath.h>
 #include <vector>
+#include <string>
 
 #include "Vertex.h"
 
@@ -11,5 +12,6 @@ namespace ssw
 	{
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
+		std::string textureFileName;
 	};
 }

@@ -26,4 +26,13 @@ namespace ssw
 
 	static_assert((sizeof(NormalVertexConstantData) % 16) == 0,
 		"Constant Buffer size must be 16-byte aligned");
+
+	struct BasicPixelConstantData
+	{
+		int useTexture = 1;
+		float dummy[3];
+	};
+
+	static_assert((sizeof(BasicPixelConstantData) % 16) == 0,
+		"Constant Buffer size must be 16-byte aligned");
 }

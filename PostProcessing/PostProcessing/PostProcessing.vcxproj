@@ -187,6 +187,10 @@
   <ItemGroup>
     <None Include="Common.hlsli" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="earth.jpg" />
+    <Image Include="wall.jpg" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

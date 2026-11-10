@@ -85,4 +85,12 @@
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="earth.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

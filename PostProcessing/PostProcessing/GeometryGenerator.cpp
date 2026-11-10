@@ -11,6 +11,7 @@ namespace ssw
 		vector<Vector3> positions;
 		vector<Vector3> colors;
 		vector<Vector3> normals;
+		vector<Vector2> texcoords;
 		
 		// 모든 면에서 같은 텍스처를 재사용하기 때문에 uv 좌표가 같음
 
@@ -27,6 +28,10 @@ namespace ssw
 		normals.push_back(Vector3(0.0f, 1.0f, 0.0f));
 		normals.push_back(Vector3(0.0f, 1.0f, 0.0f));
 		normals.push_back(Vector3(0.0f, 1.0f, 0.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 1.0f));
+		texcoords.push_back(Vector2(0.0f, 1.0f));
 
 		// 아랫면
 		positions.push_back(Vector3(-1.0f, -1.0f, -1.0f) * scale);
@@ -41,6 +46,10 @@ namespace ssw
 		normals.push_back(Vector3(0.0f, -1.0f, 0.0f));
 		normals.push_back(Vector3(0.0f, -1.0f, 0.0f));
 		normals.push_back(Vector3(0.0f, -1.0f, 0.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 1.0f));
+		texcoords.push_back(Vector2(0.0f, 1.0f));
 
 		// 앞면
 		positions.push_back(Vector3(-1.0f, -1.0f, -1.0f) * scale);
@@ -55,6 +64,10 @@ namespace ssw
 		normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
 		normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
 		normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 1.0f));
+		texcoords.push_back(Vector2(0.0f, 1.0f));
 
 		// 뒷면
 		positions.push_back(Vector3(-1.0f, -1.0f, 1.0f) * scale);
@@ -69,6 +82,10 @@ namespace ssw
 		normals.push_back(Vector3(0.0f, 0.0f, 1.0f));
 		normals.push_back(Vector3(0.0f, 0.0f, 1.0f));
 		normals.push_back(Vector3(0.0f, 0.0f, 1.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 1.0f));
+		texcoords.push_back(Vector2(0.0f, 1.0f));
 
 		// 왼쪽
 		positions.push_back(Vector3(-1.0f, -1.0f, 1.0f) * scale);
@@ -83,6 +100,10 @@ namespace ssw
 		normals.push_back(Vector3(-1.0f, 0.0f, 0.0f));
 		normals.push_back(Vector3(-1.0f, 0.0f, 0.0f));
 		normals.push_back(Vector3(-1.0f, 0.0f, 0.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 1.0f));
+		texcoords.push_back(Vector2(0.0f, 1.0f));
 
 		// 오른쪽
 		positions.push_back(Vector3(1.0f, -1.0f, 1.0f) * scale);
@@ -97,12 +118,17 @@ namespace ssw
 		normals.push_back(Vector3(1.0f, 0.0f, 0.0f));
 		normals.push_back(Vector3(1.0f, 0.0f, 0.0f));
 		normals.push_back(Vector3(1.0f, 0.0f, 0.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 0.0f));
+		texcoords.push_back(Vector2(1.0f, 1.0f));
+		texcoords.push_back(Vector2(0.0f, 1.0f));
 
 		MeshData meshData;
 		for (size_t i = 0; i < positions.size(); i++) {
 			Vertex v;
 			v.position = positions[i];
 			v.normal = normals[i];
+			v.texcoord = texcoords[i];
 			meshData.vertices.push_back(v);
 		}
 
@@ -190,6 +216,7 @@ namespace ssw
 				
 				v.normal = v.position;
 				v.normal.Normalize();
+				v.texcoord = Vector2(float(i) / numSlices, 1.0f - float(j) / numStacks);
 
 				vertices.push_back(v);
 			}

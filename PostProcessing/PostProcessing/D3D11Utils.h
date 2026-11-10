@@ -33,6 +33,11 @@ namespace ssw
 			const wstring& filename,
 			ComPtr<ID3D11PixelShader>& pixelShader);
 
+		static void CreateTexture(ComPtr<ID3D11Device>& device,
+			const std::string filename,
+			ComPtr<ID3D11Texture2D>& texture,
+			ComPtr<ID3D11ShaderResourceView>& textureResourceView);
+
 		template <typename T_CONSTANT>
 		static void CreateConstantBuffer(ComPtr<ID3D11Device>& device,
 			const T_CONSTANT& constantBufferData,
