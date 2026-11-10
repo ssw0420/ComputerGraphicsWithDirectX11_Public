@@ -11,8 +11,9 @@ struct VertexShaderInput
 struct PixelShaderInput
 {
     float4 posProj : SV_POSITION;
-    float3 normalModel : NORMAL;
+    float3 normalWorld : NORMAL;
     float2 texcoord : TEXCOORD0;
+    float3 color : COLOR;
 };
 
 #endif

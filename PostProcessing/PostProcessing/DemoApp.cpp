@@ -176,7 +176,14 @@ namespace ssw
 		_context->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
 		_context->OMSetDepthStencilState(_depthStencilState.Get(), 0);
 
-		_context->RSSetState(_solidRasterizerState.Get());
+		if (_bDrawAsWire)
+		{
+			_context->RSSetState(_wireRasterizerState.Get());
+		}
+		else
+		{
+			_context->RSSetState(_solidRasterizerState.Get());
+		}
 
 		if (_bSphereVisible) _meshGroupSphere.Render(_context);
 		if (_bBoxVisible) _meshGroupBox.Render(_context);
@@ -203,7 +210,9 @@ namespace ssw
 
 		//auto modelRow = Matrix::CreateScale(_modelScaling);
 
-		auto viewRow = Matrix::CreateTranslation(0.0f, 0.0f, 2.0f);
+		auto viewRow = Matrix::CreateRotationY(_viewRot.y) *
+			Matrix::CreateRotationX(_viewRot.x) *
+			Matrix::CreateTranslation(0.0f, 0.0f, 2.0f);
 
 		const float aspect = Application::GetAspectRatio();
 		auto projRow = static_cast<Matrix>(XMMatrixPerspectiveFovLH(XMConvertToRadians(_projFovAngleY), aspect, _nearZ, _farZ));
@@ -215,9 +224,11 @@ namespace ssw
 			Matrix::CreateRotationX(_sphereRotation.x) *
 			Matrix::CreateRotationZ(_sphereRotation.z) *
 			Matrix::CreateTranslation(_sphereTranslation);
+		auto sphereInvTransposeRow = sphereModelRow.Invert().Transpose();
 		_meshGroupSphere._basicVertexConstantData.model = sphereModelRow.Transpose();
 		_meshGroupSphere._basicVertexConstantData.view = viewRow.Transpose();
 		_meshGroupSphere._basicVertexConstantData.projection = projRow.Transpose();
+		_meshGroupSphere._basicVertexConstantData.invTranspose = sphereInvTransposeRow.Transpose();
 		_meshGroupSphere.UpdateConstantBuffers(_device, _context);
 
 		auto boxModelRow = Matrix::CreateScale(_boxScaling) *
@@ -225,9 +236,11 @@ namespace ssw
 			Matrix::CreateRotationX(_boxRotation.x) *
 			Matrix::CreateRotationZ(_boxRotation.z) *
 			Matrix::CreateTranslation(_boxTranslation);
+		auto boxInvTransposeRow = boxModelRow.Invert().Transpose();
 		_meshGroupBox._basicVertexConstantData.model = boxModelRow.Transpose();
 		_meshGroupBox._basicVertexConstantData.view = viewRow.Transpose();
 		_meshGroupBox._basicVertexConstantData.projection = projRow.Transpose();
+		_meshGroupBox._basicVertexConstantData.invTranspose = boxInvTransposeRow.Transpose();
 		_meshGroupBox.UpdateConstantBuffers(_device, _context);
 
 		//D3D11_MAPPED_SUBRESOURCE ms;
@@ -246,12 +259,16 @@ namespace ssw
 				_modelRotation = _sphereRotation;
 				_modelTranslation = _sphereTranslation;
 				_modelScaling = _sphereScaling;
+				_bDrawNormals = _meshGroupSphere._bDrawNormals;
+				_normalScale = _meshGroupSphere._normalVertexConstantData.scale;
 			}
 			else if (_bBoxSelected)
 			{
 				_modelRotation = _boxRotation;
 				_modelTranslation = _boxTranslation;
 				_modelScaling = _boxScaling;
+				_bDrawNormals = _meshGroupBox._bDrawNormals;
+				_normalScale = _meshGroupBox._normalVertexConstantData.scale;
 			}
 		}
 		ImGui::SameLine();
@@ -262,12 +279,16 @@ namespace ssw
 				_modelRotation = _sphereRotation;
 				_modelTranslation = _sphereTranslation;
 				_modelScaling = _sphereScaling;
+				_bDrawNormals = _meshGroupSphere._bDrawNormals;
+				_normalScale = _meshGroupSphere._normalVertexConstantData.scale;
 			}
 			else if (_bBoxSelected)
 			{
 				_modelRotation = _boxRotation;
 				_modelTranslation = _boxTranslation;
 				_modelScaling = _boxScaling;
+				_bDrawNormals = _meshGroupBox._bDrawNormals;
+				_normalScale = _meshGroupBox._normalVertexConstantData.scale;
 			}
 		}
 
@@ -287,10 +308,36 @@ namespace ssw
 			if (_bBoxSelected) _boxRotation = _modelRotation;
 		}
 
-		if (ImGui::SliderFloat3("Model Scaling", &_modelScaling.x, 0.1f, 3.0f));
+		if (ImGui::SliderFloat3("Model Scaling", &_modelScaling.x, 0.1f, 3.0f))
 		{
 			if (_bSphereSelected) _sphereScaling = _modelScaling;
 			if (_bBoxSelected) _boxScaling = _modelScaling;
 		}
+
+		ImGui::SliderFloat2("_viewRot", &_viewRot.x, -3.14f, 3.14f);
+
+		ImGui::Checkbox("Wireframe", &_bDrawAsWire);
+
+		if (ImGui::Checkbox("Draw Normals", &_bDrawNormals))
+		{
+			if (_bSphereSelected) _meshGroupSphere._bDrawNormals = _bDrawNormals;
+			if (_bBoxSelected) _meshGroupBox._bDrawNormals = _bDrawNormals;
+		}
+
+		if (ImGui::SliderFloat("Normal Scale", &_normalScale, 0.0f, 0.1f))
+		{
+			if (_bSphereSelected)
+			{
+				_meshGroupSphere._normalVertexConstantData.scale = _normalScale;
+				_meshGroupSphere._bDrawNormalsDirtyFlag = true;
+			}
+			
+			if (_bBoxSelected)
+			{
+				_meshGroupBox._normalVertexConstantData.scale = _normalScale;
+				_meshGroupBox._bDrawNormalsDirtyFlag = true;
+			}
+		}
+
 	}
 }

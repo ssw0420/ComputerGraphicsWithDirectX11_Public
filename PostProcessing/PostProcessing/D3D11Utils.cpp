@@ -40,7 +40,7 @@ namespace ssw
 #if defined(DEBUG) || defined(_DEBUG)
 		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
-		HRESULT hr = D3DCompileFromFile(L"BasicVS.hlsl",
+		HRESULT hr = D3DCompileFromFile(filename.c_str(),
 			nullptr,
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			"main",
@@ -71,7 +71,7 @@ namespace ssw
 		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-		HRESULT hr = D3DCompileFromFile(L"BasicPS.hlsl",
+		HRESULT hr = D3DCompileFromFile(filename.c_str(),
 			nullptr,
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			"main",

@@ -5,6 +5,7 @@ cbuffer BasicVertexConstantData : register(b0)
     matrix model;
     matrix view;
     matrix projection;
+    matrix invTranspose;
 }
 
 PixelShaderInput main(VertexShaderInput input)
@@ -17,8 +18,11 @@ PixelShaderInput main(VertexShaderInput input)
     pos = mul(pos, projection);
     output.posProj = pos;
     
-    output.normalModel = input.normalModel;
+    float4 normal = float4(input.normalModel, 0.0f);
+    output.normalWorld = mul(normal, invTranspose).xyz;
+    output.normalWorld = normalize(output.normalWorld);
     output.texcoord = input.texcoord;
+    output.color = float3(0.0f, 0.0f, 0.0f);
 
     return output;
 }

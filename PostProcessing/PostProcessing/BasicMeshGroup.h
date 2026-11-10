@@ -19,6 +19,10 @@ namespace ssw
 	public:
 		BasicVertexConstantData _basicVertexConstantData;
 
+		NormalVertexConstantData _normalVertexConstantData;
+		bool _bDrawNormalsDirtyFlag = true;
+		bool _bDrawNormals = false;
+
 	private:
 		std::vector<shared_ptr<Mesh>> _meshes;
 
@@ -27,5 +31,12 @@ namespace ssw
 		ComPtr<ID3D11InputLayout> _basicInputLayout;
 
 		ComPtr<ID3D11Buffer> _vertexConstantBuffer;
+
+		ComPtr<ID3D11VertexShader> _normalVertexShader;
+		ComPtr<ID3D11PixelShader> _normalPixelShader;
+
+		shared_ptr<Mesh> _normalLines;
+
+		ComPtr<ID3D11Buffer> _normalVertexConstantBuffer;
 	};
 }

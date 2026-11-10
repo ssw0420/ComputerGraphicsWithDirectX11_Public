@@ -34,11 +34,59 @@ namespace ssw
 		D3D11Utils::CreatePixelShader(device,
 			L"BasicPS.hlsl",
 			_basicPixelShader);
+
+		_normalLines = std::make_shared<Mesh>();
+
+		std::vector<Vertex> normalVertices;
+		std::vector<uint32_t> normalIndices;
+
+		size_t offset = 0;
+
+		for (const auto& meshData : meshes)
+		{
+			for (size_t i = 0; i < meshData.vertices.size(); ++i)
+			{
+				auto v = meshData.vertices[i];
+				
+				v.texcoord.x = 0.0f;
+				normalVertices.push_back(v);
+
+				v.texcoord.x = 1.0f;
+				normalVertices.push_back(v);
+
+				normalIndices.push_back(uint32_t(2 * (i + offset)));
+				normalIndices.push_back(uint32_t(2 * (i + offset) + 1));
+			}
+			offset += meshData.vertices.size();
+		}
+
+		D3D11Utils::CreateVertexBuffer(device, normalVertices, _normalLines->_vertexBuffer);
+		_normalLines->_indexCount = UINT(normalIndices.size());
+
+		D3D11Utils::CreateIndexBuffer(device, normalIndices, _normalLines->_indexBuffer);
+
+		D3D11Utils::CreateVertexShaderAndInputLayout(device,
+			L"NormalVS.hlsl",
+			basicInputElements,
+			_normalVertexShader,
+			_basicInputLayout);
+
+		D3D11Utils::CreatePixelShader(device,
+			L"NormalPS.hlsl",
+			_normalPixelShader);
+
+		D3D11Utils::CreateConstantBuffer(device, _normalVertexConstantData, _normalVertexConstantBuffer);
 	}
 
 	void BasicMeshGroup::UpdateConstantBuffers(ComPtr<ID3D11Device>& device, ComPtr<ID3D11DeviceContext>& context)
 	{
 		D3D11Utils::UpdateBuffer(device, context, _basicVertexConstantData, _vertexConstantBuffer);
+	
+		if (_bDrawNormals && _bDrawNormalsDirtyFlag)
+		{
+			D3D11Utils::UpdateBuffer(device, context, _normalVertexConstantData, _normalVertexConstantBuffer);
+			_bDrawNormalsDirtyFlag = false;
+		}
 	}
 
 	void BasicMeshGroup::Render(ComPtr<ID3D11DeviceContext>& context)
@@ -59,6 +107,23 @@ namespace ssw
 			context->VSSetConstantBuffers(0, 1, _vertexConstantBuffer.GetAddressOf());
 
 			context->DrawIndexed(mesh->_indexCount, 0, 0);
+		}
+
+		if (_bDrawNormals)
+		{
+			context->VSSetShader(_normalVertexShader.Get(), nullptr, 0);
+			context->PSSetShader(_normalPixelShader.Get(), nullptr, 0);
+
+			context->IASetInputLayout(_basicInputLayout.Get());
+			context->IASetVertexBuffers(0, 1, _normalLines->_vertexBuffer.GetAddressOf(), &stride, &offset);
+			context->IASetIndexBuffer(_normalLines->_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+		
+			ID3D11Buffer* pptr[2] = { _vertexConstantBuffer.Get(), _normalVertexConstantBuffer.Get() };
+			context->VSSetConstantBuffers(0, 2, pptr);
+
+			context->DrawIndexed(_normalLines->_indexCount, 0, 0);
 		}
 	}
 }

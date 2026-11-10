@@ -67,5 +67,7 @@ namespace ssw
 		// Rasterizer
 		ComPtr<ID3D11RasterizerState> _solidRasterizerState;
 		ComPtr<ID3D11RasterizerState> _wireRasterizerState;
+
+		bool _bDrawAsWire = false;
 	};
 }

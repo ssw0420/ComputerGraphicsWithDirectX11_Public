@@ -45,6 +45,10 @@ namespace ssw
 		bool _bSphereVisible = true;
 		bool _bBoxVisible = true;
 
+		// 노멀 라인
+		bool _bDrawNormals = false;
+		float _normalScale = 0.1f;
+
 		Vector3 _sphereRotation = Vector3(0.0f, 0.0f, 0.0f);
 		Vector3 _sphereTranslation = Vector3(-1.0f, 0.0f, 0.0f);
 		Vector3 _sphereScaling = Vector3(1.8f);
