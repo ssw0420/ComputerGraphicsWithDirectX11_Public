@@ -1,4 +1,5 @@
 #include "BasicMeshGroup.h"
+#include "GeometryGenerator.h"
 
 namespace ssw
 {
@@ -95,6 +96,13 @@ namespace ssw
 			_normalPixelShader);
 
 		D3D11Utils::CreateConstantBuffer(device, _normalVertexConstantData, _normalVertexConstantBuffer);
+	}
+
+	void BasicMeshGroup::Initialize(ComPtr<ID3D11Device>& device, const std::string& basePath, const std::string& filename)
+	{
+		auto meshes = GeometryGenerator::ReadFromFile(basePath, filename);
+
+		Initialize(device, meshes);
 	}
 
 	void BasicMeshGroup::UpdateConstantBuffers(ComPtr<ID3D11Device>& device, ComPtr<ID3D11DeviceContext>& context)

@@ -146,6 +146,7 @@
     <ClCompile Include="DemoApp.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -154,8 +155,11 @@
     <ClInclude Include="D3D11Utils.h" />
     <ClInclude Include="DemoApp.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>

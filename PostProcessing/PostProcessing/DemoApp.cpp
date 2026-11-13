@@ -17,6 +17,16 @@ namespace ssw
 		box.textureFileName = "wall.jpg";
 		_meshGroupBox.Initialize(_device, { box });
 
+		_meshGroupCharacter.Initialize(_device, "C:/Portfolio/models/", "character.fbx");
+
+		Material material;
+		material.diffuse = Vector3(1.0f);
+		material.ambient = Vector3(0.1f);
+		material.shininess = 10.0f;
+		_meshGroupSphere._basicPixelConstantData.material = material;
+		_meshGroupBox._basicPixelConstantData.material = material;
+		_meshGroupCharacter._basicPixelConstantData.material = material;
+
 		return true;
 
 		//MeshData box = GeometryGenerator::MakeBox(0.3f);
@@ -189,6 +199,7 @@ namespace ssw
 
 		if (_bSphereVisible) _meshGroupSphere.Render(_context);
 		if (_bBoxVisible) _meshGroupBox.Render(_context);
+		if (_bCharacterVisible) _meshGroupCharacter.Render(_context);
 
 		//UINT stride = sizeof(Vertex);
 		//UINT offset = 0;
@@ -219,13 +230,33 @@ namespace ssw
 		const float aspect = Application::GetAspectRatio();
 		auto projRow = static_cast<Matrix>(XMMatrixPerspectiveFovLH(XMConvertToRadians(_projFovAngleY), aspect, _nearZ, _farZ));
 	
+		auto eyeWorld = Vector3::Transform(Vector3(0.0f), viewRow.Invert());
+		_meshGroupSphere._basicPixelConstantData.eyeWorld = eyeWorld;
+		_meshGroupBox._basicPixelConstantData.eyeWorld = eyeWorld;
+		_meshGroupCharacter._basicPixelConstantData.eyeWorld = eyeWorld;
+
+		for (int i = 0; i < MAX_LIGHTS; ++i)
+		{
+			Light light = _guiLight;
+			light.direction.Normalize();
+
+			if (i != _lightType)
+			{
+				light.strength *= 0.0f;
+			}
+
+			_meshGroupSphere._basicPixelConstantData.lights[i] = light;
+			_meshGroupBox._basicPixelConstantData.lights[i] = light;
+			_meshGroupCharacter._basicPixelConstantData.lights[i] = light;
+		}
+
 		// 두 물체를 동시에 표현하기 위해 위치도 조정함
-		// 행 벡터이므로 왼쪽 -> 오른쪽 순서
-		auto sphereModelRow = Matrix::CreateScale(_sphereScaling) *
-			Matrix::CreateRotationY(_sphereRotation.y) *
-			Matrix::CreateRotationX(_sphereRotation.x) *
-			Matrix::CreateRotationZ(_sphereRotation.z) *
-			Matrix::CreateTranslation(_sphereTranslation);
+		// 왼쪽 -> 오른쪽 순서
+		auto sphereModelRow = Matrix::CreateScale(_sphereTransform.scaling) *
+			Matrix::CreateRotationY(_sphereTransform.rotation.y) *
+			Matrix::CreateRotationX(_sphereTransform.rotation.x) *
+			Matrix::CreateRotationZ(_sphereTransform.rotation.z) *
+			Matrix::CreateTranslation(_sphereTransform.translation);
 		auto sphereInvTransposeRow = sphereModelRow.Invert().Transpose();
 		_meshGroupSphere._basicVertexConstantData.model = sphereModelRow.Transpose();
 		_meshGroupSphere._basicVertexConstantData.view = viewRow.Transpose();
@@ -233,11 +264,11 @@ namespace ssw
 		_meshGroupSphere._basicVertexConstantData.invTranspose = sphereInvTransposeRow.Transpose();
 		_meshGroupSphere.UpdateConstantBuffers(_device, _context);
 
-		auto boxModelRow = Matrix::CreateScale(_boxScaling) *
-			Matrix::CreateRotationY(_boxRotation.y) *
-			Matrix::CreateRotationX(_boxRotation.x) *
-			Matrix::CreateRotationZ(_boxRotation.z) *
-			Matrix::CreateTranslation(_boxTranslation);
+		auto boxModelRow = Matrix::CreateScale(_boxTransform.scaling) *
+			Matrix::CreateRotationY(_boxTransform.rotation.y) *
+			Matrix::CreateRotationX(_boxTransform.rotation.x) *
+			Matrix::CreateRotationZ(_boxTransform.rotation.z) *
+			Matrix::CreateTranslation(_boxTransform.translation);
 		auto boxInvTransposeRow = boxModelRow.Invert().Transpose();
 		_meshGroupBox._basicVertexConstantData.model = boxModelRow.Transpose();
 		_meshGroupBox._basicVertexConstantData.view = viewRow.Transpose();
@@ -245,6 +276,17 @@ namespace ssw
 		_meshGroupBox._basicVertexConstantData.invTranspose = boxInvTransposeRow.Transpose();
 		_meshGroupBox.UpdateConstantBuffers(_device, _context);
 
+		auto characterModelRow = Matrix::CreateScale(_characterTransform.scaling) *
+			Matrix::CreateRotationY(_characterTransform.rotation.y) *
+			Matrix::CreateRotationX(_characterTransform.rotation.x) *
+			Matrix::CreateRotationZ(_characterTransform.rotation.z) *
+			Matrix::CreateTranslation(_characterTransform.translation);
+		auto characterInvTransposeRow = characterModelRow.Invert().Transpose();
+		_meshGroupCharacter._basicVertexConstantData.model = characterModelRow.Transpose();
+		_meshGroupCharacter._basicVertexConstantData.view = viewRow.Transpose();
+		_meshGroupCharacter._basicVertexConstantData.projection = projRow.Transpose();
+		_meshGroupCharacter._basicVertexConstantData.invTranspose = characterInvTransposeRow.Transpose();
+		_meshGroupCharacter.UpdateConstantBuffers(_device, _context);
 		//D3D11_MAPPED_SUBRESOURCE ms;
 		//_context->Map(_vertexConstantBuffer.Get(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 		//memcpy(ms.pData, &_basicVertexConstantData, sizeof(_basicVertexConstantData));
@@ -258,21 +300,24 @@ namespace ssw
 		{
 			if (_bSphereSelected)
 			{
-				_modelRotation = _sphereRotation;
-				_modelTranslation = _sphereTranslation;
-				_modelScaling = _sphereScaling;
+				_guiTransform = _sphereTransform;
 				_bDrawNormals = _meshGroupSphere._bDrawNormals;
 				_normalScale = _meshGroupSphere._normalVertexConstantData.scale;
 				_bUseTexture = _meshGroupSphere._basicPixelConstantData.useTexture;
 			}
 			else if (_bBoxSelected)
 			{
-				_modelRotation = _boxRotation;
-				_modelTranslation = _boxTranslation;
-				_modelScaling = _boxScaling;
+				_guiTransform = _boxTransform;
 				_bDrawNormals = _meshGroupBox._bDrawNormals;
 				_normalScale = _meshGroupBox._normalVertexConstantData.scale;
 				_bUseTexture = _meshGroupBox._basicPixelConstantData.useTexture;
+			}
+			else if (_bCharacterSelected)
+			{
+				_guiTransform = _characterTransform;
+				_bDrawNormals = _meshGroupCharacter._bDrawNormals;
+				_bUseTexture = _meshGroupCharacter._basicPixelConstantData.useTexture;
+				_normalScale = _meshGroupCharacter._normalVertexConstantData.scale;
 			}
 		}
 		ImGui::SameLine();
@@ -280,44 +325,94 @@ namespace ssw
 		{
 			if (_bSphereSelected)
 			{
-				_modelRotation = _sphereRotation;
-				_modelTranslation = _sphereTranslation;
-				_modelScaling = _sphereScaling;
+				_guiTransform = _sphereTransform;
 				_bDrawNormals = _meshGroupSphere._bDrawNormals;
 				_normalScale = _meshGroupSphere._normalVertexConstantData.scale;
 				_bUseTexture = _meshGroupSphere._basicPixelConstantData.useTexture;
 			}
 			else if (_bBoxSelected)
 			{
-				_modelRotation = _boxRotation;
-				_modelTranslation = _boxTranslation;
-				_modelScaling = _boxScaling;
+				_guiTransform = _boxTransform;
 				_bDrawNormals = _meshGroupBox._bDrawNormals;
 				_normalScale = _meshGroupBox._normalVertexConstantData.scale;
 				_bUseTexture = _meshGroupBox._basicPixelConstantData.useTexture;
+			}
+			else if (_bCharacterSelected)
+			{
+				_guiTransform = _characterTransform;
+				_bDrawNormals = _meshGroupCharacter._bDrawNormals;
+				_bUseTexture = _meshGroupCharacter._basicPixelConstantData.useTexture;
+				_normalScale = _meshGroupCharacter._normalVertexConstantData.scale;
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Character", &_bCharacterSelected))
+		{
+			if (_bSphereSelected)
+			{
+				_guiTransform = _sphereTransform;
+				_bDrawNormals = _meshGroupSphere._bDrawNormals;
+				_normalScale = _meshGroupSphere._normalVertexConstantData.scale;
+				_bUseTexture = _meshGroupSphere._basicPixelConstantData.useTexture;
+			}
+			else if (_bBoxSelected)
+			{
+				_guiTransform = _boxTransform;
+				_bDrawNormals = _meshGroupBox._bDrawNormals;
+				_normalScale = _meshGroupBox._normalVertexConstantData.scale;
+				_bUseTexture = _meshGroupBox._basicPixelConstantData.useTexture;
+			}
+			else if (_bCharacterSelected)
+			{
+				_guiTransform = _characterTransform;
+				_bDrawNormals = _meshGroupCharacter._bDrawNormals;
+				_bUseTexture = _meshGroupCharacter._basicPixelConstantData.useTexture;
+				_normalScale = _meshGroupCharacter._normalVertexConstantData.scale;
 			}
 		}
 
 		ImGui::Checkbox("Show Sphere", &_bSphereVisible);
 		ImGui::SameLine();
 		ImGui::Checkbox("Show Box", &_bBoxVisible);
+		ImGui::SameLine();
+		ImGui::Checkbox("Show Character", &_bCharacterVisible);
 
-		if (ImGui::SliderFloat3("Model Translation", &_modelTranslation.x, -1.0f, 1.0f))
+		if (ImGui::SliderFloat3("Model Translation", &_guiTransform.translation.x, -1.0f, 1.0f))
 		{
-			if (_bSphereSelected) _sphereTranslation = _modelTranslation;
-			if (_bBoxSelected) _boxTranslation = _modelTranslation;
+			if (_bSphereSelected) _sphereTransform.translation = _guiTransform.translation;
+			if (_bBoxSelected) _boxTransform.translation = _guiTransform.translation;
+			if (_bCharacterSelected) _characterTransform.translation = _guiTransform.translation;
 		}
 
-		if (ImGui::SliderFloat3("Model Rotation", &_modelRotation.x, -3.14f, 3.14f))
+		if (ImGui::SliderFloat3("Model Rotation", &_guiTransform.rotation.x, -3.14f, 3.14f))
 		{
-			if (_bSphereSelected) _sphereRotation = _modelRotation;
-			if (_bBoxSelected) _boxRotation = _modelRotation;
+			if (_bSphereSelected) _sphereTransform.rotation = _guiTransform.rotation;
+			if (_bBoxSelected) _boxTransform.rotation = _guiTransform.rotation;
+			if (_bCharacterSelected) _characterTransform.rotation = _guiTransform.rotation;
 		}
 
-		if (ImGui::SliderFloat3("Model Scaling", &_modelScaling.x, 0.1f, 3.0f))
+		bool bScaleChanged = false;
+		ImGui::Checkbox("##UniformScale", &_bUniformScale);
+		ImGui::SameLine();
+		if (_bUniformScale)
 		{
-			if (_bSphereSelected) _sphereScaling = _modelScaling;
-			if (_bBoxSelected) _boxScaling = _modelScaling;
+			float uniformScale = _guiTransform.scaling.x;
+			if (ImGui::SliderFloat("Model Scaling", &uniformScale, 0.1f, 3.0f))
+			{
+				_guiTransform.scaling = Vector3(uniformScale);
+				bScaleChanged = true;
+			}
+		}
+		else
+		{
+			bScaleChanged = ImGui::SliderFloat3("Model Scaling", &_guiTransform.scaling.x, 0.1f, 3.0f);
+		}
+
+		if (bScaleChanged)
+		{
+			if (_bSphereSelected) _sphereTransform.scaling = _guiTransform.scaling;
+			if (_bBoxSelected) _boxTransform.scaling = _guiTransform.scaling;
+			if (_bCharacterSelected) _characterTransform.scaling = _guiTransform.scaling;
 		}
 
 		ImGui::SliderFloat2("_viewRot", &_viewRot.x, -3.14f, 3.14f);
@@ -328,12 +423,14 @@ namespace ssw
 		{
 			if (_bSphereSelected) _meshGroupSphere._basicPixelConstantData.useTexture = _bUseTexture;
 			if (_bBoxSelected) _meshGroupBox._basicPixelConstantData.useTexture = _bUseTexture;
+			if (_bCharacterSelected) _meshGroupCharacter._basicPixelConstantData.useTexture = _bUseTexture;
 		}
 
 		if (ImGui::Checkbox("Draw Normals", &_bDrawNormals))
 		{
-			if (_bSphereSelected) _meshGroupSphere._bDrawNormals = _bDrawNormals;
-			if (_bBoxSelected) _meshGroupBox._bDrawNormals = _bDrawNormals;
+			_meshGroupSphere._bDrawNormals = _bDrawNormals;
+			_meshGroupBox._bDrawNormals = _bDrawNormals;
+			_meshGroupCharacter._bDrawNormals = _bDrawNormals;
 		}
 
 		if (ImGui::SliderFloat("Normal Scale", &_normalScale, 0.0f, 0.1f))
@@ -349,6 +446,52 @@ namespace ssw
 				_meshGroupBox._normalVertexConstantData.scale = _normalScale;
 				_meshGroupBox._bDrawNormalsDirtyFlag = true;
 			}
+
+			if (_bCharacterSelected)
+			{
+				_meshGroupCharacter._normalVertexConstantData.scale = _normalScale;
+				_meshGroupCharacter._bDrawNormalsDirtyFlag = true;
+			}
+		}
+
+		if (ImGui::RadioButton("Directional", _lightType == 0))
+		{
+			_lightType = 0;
+		}
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Point", _lightType == 1))
+		{
+			_lightType = 1;
+		}
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Spot", _lightType == 2))
+		{
+			_lightType = 2;
+		}
+
+		ImGui::SliderFloat3("Light Position", &_guiLight.position.x, -3.0f, 3.0f);
+		ImGui::SliderFloat3("Light Direction", &_guiLight.direction.x, -1.0f, 1.0f);
+		ImGui::SliderFloat("Spot Power", &_guiLight.spotPower, 1.0f, 200.0f);
+
+		if (ImGui::SliderFloat("Material Diffuse", &_guiMaterialDiffuse, 0.0f, 3.0f))
+		{
+			if (_bSphereSelected) _meshGroupSphere._basicPixelConstantData.material.diffuse = Vector3(_guiMaterialDiffuse);
+			if (_bBoxSelected) _meshGroupBox._basicPixelConstantData.material.diffuse = Vector3(_guiMaterialDiffuse);
+			if (_bCharacterSelected) _meshGroupCharacter._basicPixelConstantData.material.diffuse = Vector3(_guiMaterialDiffuse);
+		}
+
+		if (ImGui::SliderFloat("Material Specular", &_guiMaterialSpecular, 0.0f, 3.0f))
+		{
+			if (_bSphereSelected) _meshGroupSphere._basicPixelConstantData.material.specular = Vector3(_guiMaterialSpecular);
+			if (_bBoxSelected) _meshGroupBox._basicPixelConstantData.material.specular = Vector3(_guiMaterialSpecular);
+			if (_bCharacterSelected) _meshGroupCharacter._basicPixelConstantData.material.specular = Vector3(_guiMaterialSpecular);
+		}
+
+		if (ImGui::SliderFloat("Material Shininess", &_guiMaterialShininess, 0.01f, 20.0f))
+		{
+			if (_bSphereSelected) _meshGroupSphere._basicPixelConstantData.material.shininess = _guiMaterialShininess;
+			if (_bBoxSelected) _meshGroupBox._basicPixelConstantData.material.shininess = _guiMaterialShininess;
+			if (_bCharacterSelected) _meshGroupCharacter._basicPixelConstantData.material.shininess = _guiMaterialShininess;
 		}
 
 	}

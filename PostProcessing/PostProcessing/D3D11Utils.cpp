@@ -129,8 +129,9 @@ namespace ssw
 			{
 				rgbaPixels[destStart + channelIndex] = loadedPixels[srcStart + channelIndex];
 			}
-			// A 부분에 매 반복마다 255를 넣음
-			rgbaPixels[destStart + 3] = 255;
+			// 채널이 3개인 경우 A 부분에 매 반복마다 255를 넣음
+			rgbaPixels[destStart + 3] = (channels == 4) ? loadedPixels[srcStart + 3] : 255;
+			//rgbaPixels[destStart + 3] = 255;
 		}
 
 		stbi_image_free(loadedPixels);

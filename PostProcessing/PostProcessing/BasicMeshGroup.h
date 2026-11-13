@@ -12,6 +12,8 @@ namespace ssw
 	public:
 		void Initialize(ComPtr<ID3D11Device>& device, const std::vector<MeshData>& meshes);
 
+		void Initialize(ComPtr<ID3D11Device>& device, const std::string& basePath, const std::string& filename);
+
 		void UpdateConstantBuffers(ComPtr<ID3D11Device>& device, ComPtr<ID3D11DeviceContext>& context);
 
 		void Render(ComPtr<ID3D11DeviceContext>& context);

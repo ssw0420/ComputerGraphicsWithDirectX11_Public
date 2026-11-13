@@ -2,6 +2,9 @@
 
 #include <directxtk/SimpleMath.h>
 
+#include "Light.h"
+#include "Material.h"
+
 namespace ssw
 {
 	using DirectX::SimpleMath::Matrix;
@@ -29,8 +32,10 @@ namespace ssw
 
 	struct BasicPixelConstantData
 	{
+		Vector3 eyeWorld;
 		int useTexture = 1;
-		float dummy[3];
+		Material material;
+		Light lights[MAX_LIGHTS];
 	};
 
 	static_assert((sizeof(BasicPixelConstantData) % 16) == 0,

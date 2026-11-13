@@ -27,6 +27,8 @@ PixelShaderInput main(VertexShaderInput input)
     float t = input.texcoord.x;
     pos.xyz += output.normalWorld * t * scale;
     
+    output.posWorld = pos.xyz;
+    
     pos = mul(pos, view);
     pos = mul(pos, projection);
     

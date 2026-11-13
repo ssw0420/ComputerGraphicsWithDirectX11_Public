@@ -1,4 +1,5 @@
 #include "GeometryGenerator.h"
+#include "ModelLoader.h"
 
 namespace ssw
 {
@@ -241,5 +242,41 @@ namespace ssw
 		}
 
 		return meshData;
+	}
+
+	vector<MeshData> GeometryGenerator::ReadFromFile(std::string basePath, const std::string& filename)
+	{
+		ModelLoader modelLoader;
+		modelLoader.Load(basePath, filename);
+		vector<MeshData>& meshes = modelLoader._meshes;
+
+		Vector3 vmin(1000, 1000, 1000);
+		Vector3 vmax(-1000, -1000, -1000);
+		for (auto& mesh : meshes)
+		{
+			for (auto& v : mesh.vertices)
+			{
+				vmin.x = XMMin(vmin.x, v.position.x);
+				vmin.y = XMMin(vmin.y, v.position.y);
+				vmin.z = XMMin(vmin.z, v.position.z);
+				vmax.x = XMMax(vmax.x, v.position.x);
+				vmax.y = XMMax(vmax.y, v.position.y);
+				vmax.z = XMMax(vmax.z, v.position.z);
+			}
+		}
+
+		float dx = vmax.x - vmin.x, dy = vmax.y - vmin.y, dz = vmax.z - vmin.z;
+		float longestSide = XMMax(XMMax(dx, dy), dz);
+		Vector3 center = (vmax + vmin) * 0.5f;
+
+		for (auto& mesh : meshes)
+		{
+			for (auto& v : mesh.vertices)
+			{
+				v.position = (v.position - center) / longestSide;
+			}
+		}
+
+		return meshes;
 	}
 }
